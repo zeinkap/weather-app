@@ -1,8 +1,9 @@
+require('dotenv').config();
 const   express = require('express'),
         app = express(),
         bodyParser = require('body-parser'), //without this middleware, can't make use of req.body
         request = require('request'),
-        apiKey = '1eec79cfe030de72865fe822a7d9ce5f'
+        apiKey = process.env.API_KEY
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
