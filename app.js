@@ -3,7 +3,8 @@ const   express = require('express'),
         app = express(),
         bodyParser = require('body-parser'), //without this middleware, can't make use of req.body
         request = require('request'),
-        apiKey = process.env.API_KEY
+        apiKey = process.env.API_KEY,
+        port = process.env.PORT || 3000
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -33,7 +34,7 @@ app.post('/', (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log('Listening on port 3000');
+app.listen(port, () => {
+    console.log("Listing on port 3000");
 });
 
