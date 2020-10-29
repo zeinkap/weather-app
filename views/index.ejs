@@ -13,12 +13,18 @@
           <input name="zipcode" type="number" class="ghost-input" placeholder="Enter zipcode" maxlength="5" required>
           <input type="submit" class="ghost-button" value="Get Weather">
         </form>
-        <% if(weather !== null) { %>
-            <p><%= weather %></p>
+        
+        <% if(response !== null) { %>
+            <h1><%= response.data.name %></h1>
+            <h2><%= temp %>°F</h2>
+            <p><%= msg %></p>
+
+            <small>Weather data retrieved from <%= weatherSite %></small>
+            <small>Request sent at <%= response.headers.date %></small>
           <% } %>
     
-          <% if(error !== null) { %>
-                <p><%= error %></p>
+          <% if(err !== null) { %>
+                <p><%= err %></p>
           <% } %> 
           <!--if both null then nothing happens-->
       </fieldset>

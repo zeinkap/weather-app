@@ -1,40 +1,52 @@
 require('dotenv').config();
+
 const   express = require('express'),
         app = express(),
-        bodyParser = require('body-parser'), //without this middleware, can't make use of req.body
         request = require('request'),
+        fetch = require('node-fetch'),
+        axios = require('axios');
         apiKey = process.env.API_KEY,
-        port = process.env.PORT || 3000
+        PORT = process.env.PORT || 3000
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended: true}));   
+app.use(express.json());
+app.use(express.urlencoded({extended: true})); 
 
 app.get('/', (req, res) => {
-    res.render('index', {weather: null, error: null});
+    res.render('index', { response: null, err: null });
 });
 
 app.post('/', (req, res) => {
-    let city = 'hartford',
-        zipcode = req.body.zipcode,
-        url = `http://api.openweathermap.org/data/2.5/weather?zip=${zipcode}&units=imperial&appid=${apiKey}`
-    request(url, (err, response, body) => {
-        if(err) {
-            res.render('index', {weather: null, error: 'Error, please try again.'});
-            console.log(err);
-        } else {
-            let weather = JSON.parse(body); // parsing json into js object so we can use dot notation to access properties
-            if(weather.main == undefined) {
-                res.render('index', {weather: null, error: 'Error, please try again.'});
-            } else {    
-                let weatherMessage = `It's ${weather.main.temp}°F, humidity of ${weather.main.humidity}% and ${weather.wind.speed}mph wind in ${weather.name}.`;
-                res.render('index', {weather: weatherMessage, error: null});
+    const zipcode = req.body.zipcode;
+    const url = `http://api.openweathermap.org/data/2.5/weather?zip=${zipcode}&units=imperial&appid=${apiKey}`;
+    const fetchWeather = async () => {
+        try {
+            const response = await axios.get(url);
+            let temp = Math.round(response.data.main.temp);
+            let feelsLike = Math.round(response.data.main.feels_like);
+            let humidity = response.data.main.humidity;
+            let windSpeed = Math.round(response.data.wind.speed);
+            let weatherSite = url.slice(0, 29);
+
+            if (response.data.main == undefined) {
+                res.render('index', { data: null, err: 'Error, please try again.' });
+            } else {   
+                let msg = `Feels like ${feelsLike}°F | ${humidity}% humidity
+                    | ${windSpeed} mph wind`;
+                
+                res.render('index', { msg, err: null, response, temp, weatherSite });
             }
+        } catch (err) {
+            console.log('Something went wrong', err);
+            res.render('index', { response: null, err: 'Error, please try again.' });
         }
-    });
+    }
+
+    fetchWeather();
 });
 
-app.listen(port, () => {
+app.listen(PORT, () => {
     console.log("Listing on port 3000");
 });
 
